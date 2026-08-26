@@ -90,19 +90,19 @@
         <div id="gameScreen" class="card" style="display: none;"></div>
     </div>
 
-    <!-- 1. Libreria Socket.io da CDN ufficiale (Risolve l'errore 404 e 'io is not defined') -->
+<!-- 1. Libreria Socket.io da CDN ufficiale -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     
-    <!-- 2. Configurazione globale del socket con l'URL del tuo backend Railway -->
+    <!-- 2. Configurazione globale del socket con il tuo link Railway -->
     <script>
-        // SOSTITUISCI IL LINK SOTTO CON IL TUO LINK VERO DI RAILWAY (senza lo slash finale /)
-        const SOCKET_URL = "party-game-production-bbc8.up.railway.app";
+        // AGGIUNTO "https://" E CORRETTO IL LINK
+        const SOCKET_URL = "https://party-game-production-bbc8.up.railway.app";
         const socket = io(SOCKET_URL, {
             transports: ['websocket', 'polling']
         });
     </script>
 
-    <!-- 3. Il tuo script di gioco -->
+    <!-- 3. Il tuo script di gioco (NON DEVE contenere const socket = io() all'inizio) -->
     <script src="../../js/impostore.js"></script>
 </body>
 </html>

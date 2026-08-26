@@ -1,5 +1,3 @@
-// Connessione Socket.io automatica sullo stesso dominio (Railway / Locale)
-const socket = io();
 
 // ==========================================
 // LISTA DI PAROLE CON SUGGERIMENTO SEMANTICO
