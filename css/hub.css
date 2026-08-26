@@ -507,3 +507,12 @@ div.input-group[style*="flex-direction: row"] {
     font-size: 1.1rem;
     letter-spacing: 0.5px;
 }
+
+#chatMessages {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    padding: 10px;
+    height: 180px; /* o l'altezza che usi nel tuo layout */
+}
