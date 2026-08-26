@@ -1,5 +1,5 @@
 const express = require('express');
-const http = require('http');
+const http = http = require('http'); // (o const http = require('http');)
 const { Server } = require('socket.io');
 const path = require('path');
 
@@ -180,10 +180,10 @@ io.on('connection', (socket) => {
     });
 
    // ==========================================
-// 2. LOGICA PAROLE PROIBITE (Rimossa / Non necessaria - Modalità Locale)
-// ==========================================
-// (Nessun evento socket necessario, il gioco gira interamente in locale sul client)
-// ==========================================
+   // 2. LOGICA PAROLE PROIBITE (Locale)
+   // ==========================================
+
+    // ==========================================
     // 3. LOGICA L'IMPOSTORE
     // ==========================================
     socket.on('create_impostor_room', ({ nickname }) => {
@@ -261,19 +261,26 @@ io.on('connection', (socket) => {
         }
     });
 
-    // --- AGGIUNGI QUI IL GESTORE DELLA CHAT DELL'IMPOSTORE ---
+    // --- GESTORE CHAT IMPOSTORE CON LOG DI CONTROLLO ---
     socket.on('send_impostor_chat', ({ roomCode, message }) => {
-        const room = impostorRooms[roomCode]; // Sostituito 'rooms' con 'impostorRooms' coerentemente con il tuo codice
+        console.log("ARRIVATO MESSAGGIO DI CHAT:", roomCode, message);
+        const room = impostorRooms[roomCode];
         if (room) {
             const player = room.players.find(p => p.id === socket.id);
+            console.log("GIOCATORE TROVATO:", player);
             if (player) {
                 io.to(roomCode).emit('impostor_receive_chat', {
                     sender: player.nickname,
                     message: message
                 });
+            } else {
+                console.log("GIOCATORE NON TROVATO CON ID:", socket.id);
             }
+        } else {
+            console.log("STANZA NON TROVATA:", roomCode);
         }
     });
+
     // ==========================================
     // 4. LOGICA TRIVIA FLASH
     // ==========================================
@@ -350,8 +357,6 @@ io.on('connection', (socket) => {
                 io.to(code).emit('update_players', { players: nccRooms[code].players });
             }
         }
-
-/////////////////////////////////
 
         // Pulizia L'Impostore
         for (const code in impostorRooms) {
