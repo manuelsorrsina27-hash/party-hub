@@ -369,18 +369,12 @@ socket.on('impostor_game_over', ({ impostorName, foundImpostor, secretWord }) =>
 // ==========================================
 // Funzione per inviare il messaggio di chat
 function sendChatMessage() {
-
-    function sendChatMessage() {
-    console.log("Il tasto invia è stato premuto!"); // <-- Aggiungi questo
-    const input = document.getElementById('chatInput');
-
-     }
+    console.log("Il tasto invia è stato premuto!");
     const input = document.getElementById('chatInput');
     if (!input) return;
     const message = input.value.trim();
     
     if (message !== "" && currentRoomCode) {
-        
         socket.emit('send_impostor_chat', { roomCode: currentRoomCode, message });
         input.value = "";
     }
