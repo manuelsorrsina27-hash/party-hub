@@ -1,3 +1,6 @@
+// Connessione Socket.io automatica sullo stesso dominio (Railway / Locale)
+const socket = io();
+
 // ==========================================
 // LISTA DI PAROLE CON SUGGERIMENTO SEMANTICO
 // ==========================================
@@ -57,11 +60,9 @@ let localGameData = {
 
 // Funzione di bilanciamento per scegliere gli impostori equamente
 function pickBalancedImpostorIndices(players, numImpostors) {
-    // Carica o Inizializza lo storico dal localStorage basato sui nomi dei giocatori
     let historyKey = "impostor_history_" + players.slice().sort().join("_");
     let stats = JSON.parse(localStorage.getItem(historyKey)) || {};
 
-    // Assicurati che ogni giocatore abbia un contatore nello storico
     players.forEach(p => {
         if (stats[p] === undefined) stats[p] = 0;
     });
@@ -70,27 +71,18 @@ function pickBalancedImpostorIndices(players, numImpostors) {
     let availableIndices = players.map((_, index) => index);
 
     for (let i = 0; i < numImpostors; i++) {
-        // Ordina i giocatori disponibili in base a quante volte hanno fatto l'impostore (dal minore al maggiore)
         availableIndices.sort((a, b) => stats[players[a]] - stats[players[b]] );
-
-        // Trova quanti hanno fatto l'impostore il minor numero di volte
         let minCount = stats[players[availableIndices[0]]];
         let candidates = availableIndices.filter(idx => stats[players[idx]] === minCount);
 
-        // Seleziona casualmente tra i candidati con meno presenze da impostore
         let chosenLocalIndex = Math.floor(Math.random() * candidates.length);
         let selectedPlayerIndex = candidates[chosenLocalIndex];
 
         impostorIndices.push(selectedPlayerIndex);
-        
-        // Rimuovi l'indice scelto dai disponibili per questo turno
         availableIndices = availableIndices.filter(idx => idx !== selectedPlayerIndex);
-
-        // Incrementa il contatore statistico
         stats[players[selectedPlayerIndex]]++;
     }
 
-    // Salva lo storico aggiornato
     localStorage.setItem(historyKey, JSON.stringify(stats));
     return impostorIndices;
 }
@@ -110,10 +102,7 @@ function startLocalGame() {
     const maxImpostors = Math.max(1, players.length - 1);
     const numImpostors = Math.min(requestedImpostors, maxImpostors);
 
-    // Usa l'algoritmo di bilanciamento equo
     let impostorIndices = pickBalancedImpostorIndices(players, numImpostors);
-
-    // Seleziona una parola casuale
     const randomWordObj = localSecretWords[Math.floor(Math.random() * localSecretWords.length)];
 
     localGameData.players = players;
@@ -189,7 +178,6 @@ function nextPlayerOrFinish() {
     if (localGameData.currentIndex < localGameData.players.length) {
         showPassToPlayerStep();
     } else {
-        // Fine giro ruoli: mostra schermata di discussione con il pulsante "Rispondi/Rivela"
         const gameScreen = document.getElementById('gameScreen');
         gameScreen.innerHTML = `
             <h3 style="text-align: center;">Tutti hanno visto il proprio ruolo!</h3>
@@ -199,11 +187,8 @@ function nextPlayerOrFinish() {
     }
 }
 
-// Schermata finale di rivelazione in locale
 function showLocalRevealScreen() {
     const gameScreen = document.getElementById('gameScreen');
-    
-    // Ottieni i nomi degli impostori basati sugli indici estratti
     let impostorNames = localGameData.impostorIndices.map(idx => localGameData.players[idx]).join(', ');
 
     gameScreen.innerHTML = `
@@ -267,10 +252,13 @@ function showLobbyUI(code) {
 socket.on('impostor_update_players', (players) => {
     onlinePlayersList = players;
     const list = document.getElementById('playersList');
-    list.innerHTML = players.map(p => `<li style="padding: 4px 0; border-bottom: 1px solid var(--border-color);">👤 ${p.nickname}</li>`).join('');
+    if (list) {
+        list.innerHTML = players.map(p => `<li style="padding: 4px 0; border-bottom: 1px solid var(--border-color);">👤 ${p.nickname}</li>`).join('');
+    }
     
     if (isHost && players.length >= 3) {
-        document.getElementById('btnStartOnline').style.display = 'block';
+        const btnStart = document.getElementById('btnStartOnline');
+        if (btnStart) btnStart.style.display = 'block';
     }
 });
 
@@ -302,11 +290,9 @@ socket.on('impostor_role_assigned', ({ isImpostor, secretWord, players }) => {
         `;
     }
 
-    // Inseriamo il ruolo, la chat persistente e il pulsante per votare in basso
     gameScreen.innerHTML = `
         ${roleHtml}
         
-        <!-- Box Chat di Gioco (Sempre visibile) -->
         <div style="display: flex; flex-direction: column; background: #f8fafc; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 10px; margin-bottom: 15px;">
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; font-weight: bold;">💬 Chat di Gruppo:</p>
             <div id="chatMessages" style="height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; font-size: 0.9rem; padding-right: 5px;"></div>
@@ -365,11 +351,9 @@ socket.on('impostor_game_over', ({ impostorName, foundImpostor, secretWord }) =>
 });
 
 // ==========================================
-// FUNZIONI DI CHAT MULTIPLAYER
+// FUNZIONI DI GESTIONE CHAT UNIFICATE
 // ==========================================
-// Funzione per inviare il messaggio di chat
 function sendChatMessage() {
-    console.log("Il tasto invia è stato premuto!");
     const input = document.getElementById('chatInput');
     if (!input) return;
     const message = input.value.trim();
@@ -380,25 +364,25 @@ function sendChatMessage() {
     }
 }
 
-// Funzione globale per gestire il tasto Invio ovunque la chat sia attiva
+function checkChatEnter(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        sendChatMessage();
+    }
+}
+
+// Gestione globale del tasto Invio sulla chat
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
         const activeElement = document.activeElement;
-        // Se l'utente sta scrivendo dentro l'input della chat, invia il messaggio
         if (activeElement && activeElement.id === 'chatInput') {
-            event.preventDefault(); // Evita comportamenti strani di invio modulo
+            event.preventDefault();
             sendChatMessage();
         }
     }
 });
 
-function checkChatEnter(event) {
-    if (event.key === 'Enter') {
-        sendChatMessage();
-    }
-}
-
-// Ricezione messaggi di chat dal server
+// UNICO ASCOLTATORE DEFINITIVO PER LA RICEZIONE DEI MESSAGGI
 socket.on('impostor_receive_chat', ({ sender, message }) => {
     const chatContainer = document.getElementById('chatMessages');
     if (!chatContainer) return;
@@ -426,7 +410,7 @@ socket.on('impostor_receive_chat', ({ sender, message }) => {
 
     chatContainer.appendChild(msgElement);
     chatContainer.scrollTop = chatContainer.scrollHeight;
-});;
+});
 
 socket.on('impostor_error', (msg) => {
     alert(msg);
