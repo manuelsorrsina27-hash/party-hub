@@ -1,5 +1,5 @@
 const express = require('express');
-const http = http = require('http'); // (o const http = require('http');)
+const http = require('http'); // CORRETTO
 const { Server } = require('socket.io');
 const path = require('path');
 
