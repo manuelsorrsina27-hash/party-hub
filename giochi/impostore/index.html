@@ -28,7 +28,6 @@
                     <input type="text" id="localPlayersInput" placeholder="Mario, Luca, Anna, Giulia">
                 </div>
 
-                <!-- Impostazioni Locali: Numero di Impostori -->
                 <div class="input-group">
                     <label for="localNumImpostors">Numero di Impostori</label>
                     <select id="localNumImpostors" style="width: 100%; padding: 12px 16px; background: #f0f9ff; border: 2px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-main); font-size: 1rem; outline: none;">
@@ -38,7 +37,6 @@
                     </select>
                 </div>
 
-                <!-- Impostazioni Locali: Suggerimento Impostore -->
                 <div class="input-group" style="flex-direction: row; align-items: center; justify-content: space-between; background: #f0f9ff; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md);">
                     <label for="localShowHint" style="cursor: pointer; margin-bottom: 0;">Mostra suggerimento all'impostore</label>
                     <input type="checkbox" id="localShowHint" style="width: 20px; height: 20px; accent-color: var(--accent-play); cursor: pointer;">
@@ -72,15 +70,6 @@
                             <ul id="playersList" style="list-style: none; padding: 0; margin-bottom: 15px; font-weight: 600;"></ul>
                             <button id="btnStartOnline" class="primary-btn" style="display: none; margin-bottom: 10px;" onclick="startOnlineGame()">Avvia Partita Online</button>
                         </div>
-
-                        <!-- Box Chat Online -->
-                        <div style="flex: 2; min-width: 250px; display: flex; flex-direction: column; background: #f8fafc; border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 10px;">
-                            <div id="chatMessages" style="height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; font-size: 0.9rem; padding-right: 5px;"></div>
-                            <div style="display: flex; gap: 5px;">
-                                <input type="text" id="chatInput" placeholder="Scrivi un messaggio..." onkeypress="checkChatEnter(event)" style="padding: 8px 12px; font-size: 0.9rem;">
-                                <button class="primary-btn" onclick="sendChatMessage()" style="width: auto; padding: 8px 14px; font-size: 0.9rem;">Invia</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -90,19 +79,18 @@
         <div id="gameScreen" class="card" style="display: none;"></div>
     </div>
 
-<!-- 1. Libreria Socket.io da CDN ufficiale -->
+    <!-- 1. Libreria Socket.io da CDN ufficiale -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     
     <!-- 2. Configurazione globale del socket con il tuo link Railway -->
     <script>
-        // AGGIUNTO "https://" E CORRETTO IL LINK
         const SOCKET_URL = "https://party-game-production-bbc8.up.railway.app";
         const socket = io(SOCKET_URL, {
             transports: ['websocket', 'polling']
         });
     </script>
 
-    <!-- 3. Il tuo script di gioco (NON DEVE contenere const socket = io() all'inizio) -->
+    <!-- 3. Script principale di gioco -->
     <script src="../../js/impostore.js"></script>
 </body>
 </html>

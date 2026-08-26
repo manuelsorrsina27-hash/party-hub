@@ -1,5 +1,5 @@
 const express = require('express');
-const http = require('http');
+const http = http = require('http'); // o require('http')
 const { Server } = require('socket.io');
 const path = require('path');
 
@@ -41,10 +41,10 @@ let impostorWords = [
     "Tiramisù", "Spaghetti", "Popcorn", "Cappuccino", "Frittata",
     "Panino", "Patatine", "Cocomero", "Ananas", "Miele",
     "Limone", "Biscotto", "Yogurt", "Zucchero", "Formaggio",
-    "Deserto", "Ospedale", "Biblioteca", "Museo", "Stazione",
-    "Supermercato", "Cinema", "Luna Park", "Stadio", "Ghiacciaio",
+    "Deserto", "Biblioteca", "Museo", "Stazione",
+    "Supermercato", "Cinema", "Luna Park", "Ghiacciaio",
     "Vulcano", "Sottomarino", "Faro", "Grotta", "Cascata",
-    "Piscina", "Bosco", "Castello", "Laboratorio", "Circo",
+    "Piscina", "Bosco", "Laboratorio", "Circo",
     "Pompiere", "Astronauta", "Detective", "Pirata", "Mago",
     "Vampiro", "Supereroe", "Pilota", "Chef", "Archeologo",
     "Scienziato", "Ninja", "Regina", "Gladiatore", "Faraone"
@@ -57,6 +57,7 @@ function shuffle(array) {
 io.on('connection', (socket) => {
     console.log(`Utente connesso: ${socket.id}`);
 
+    // Gestione parole impostore (Admin / Ricerca)
     socket.on('search_impostor_word', ({ term }) => {
         const query = term ? term.toLowerCase().trim() : '';
         const results = impostorWords.filter(w => w.toLowerCase().includes(query));
@@ -158,7 +159,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    // 3. L'IMPOSTORE
+    // 3. L'IMPOSTORE ONLINE
     socket.on('create_impostor_room', ({ nickname }) => {
         const roomCode = Math.random().toString(36).substring(2, 6).toUpperCase();
         impostorRooms[roomCode] = {
@@ -175,11 +176,14 @@ io.on('connection', (socket) => {
     });
 
     socket.on('join_impostor_room', ({ nickname, roomCode }) => {
-        if (impostorRooms[roomCode] && impostorRooms[roomCode].status === 'lobby') {
-            impostorRooms[roomCode].players.push({ id: socket.id, nickname });
+        const room = impostorRooms[roomCode];
+        if (room && room.status === 'lobby') {
+            if (!room.players.some(p => p.id === socket.id)) {
+                room.players.push({ id: socket.id, nickname });
+            }
             socket.join(roomCode);
             socket.emit('impostor_room_joined', roomCode);
-            io.to(roomCode).emit('impostor_update_players', impostorRooms[roomCode].players);
+            io.to(roomCode).emit('impostor_update_players', room.players);
         } else {
             socket.emit('impostor_error', 'Stanza non trovata o partita già iniziata');
         }
@@ -201,8 +205,6 @@ io.on('connection', (socket) => {
                     players: room.players.map(p => ({ id: p.id, nickname: p.nickname }))
                 });
             });
-            
-            io.to(roomCode).emit('impostor_game_started');
         } else {
             socket.emit('impostor_error', 'Servono almeno 3 giocatori per iniziare!');
         }
@@ -306,6 +308,7 @@ io.on('connection', (socket) => {
         }
     });
 
+    // DISCONNESSIONE
     socket.on('disconnect', () => {
         console.log(`Utente disconnesso: ${socket.id}`);
         for (const code in nccRooms) {
@@ -315,8 +318,11 @@ io.on('connection', (socket) => {
         }
         for (const code in impostorRooms) {
             impostorRooms[code].players = impostorRooms[code].players.filter(p => p.id !== socket.id);
-            if (impostorRooms[code].players.length === 0) delete impostorRooms[code];
-            else io.to(code).emit('impostor_update_players', impostorRooms[code].players);
+            if (impostorRooms[code].players.length === 0) {
+                delete impostorRooms[code];
+            } else {
+                io.to(code).emit('impostor_update_players', impostorRooms[code].players);
+            }
         }
         for (const code in triviaRooms) {
             triviaRooms[code].players = triviaRooms[code].players.filter(p => p.id !== socket.id);
