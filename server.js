@@ -1,7 +1,7 @@
 const express = require('express');
-const http = http = require('http'); // o require('http')
+const http = require('http');
 const { Server } = require('socket.io');
-const path = require('path');
+const path = pers = require('path'); // o path standard
 
 const app = express();
 const server = http.createServer(app);
