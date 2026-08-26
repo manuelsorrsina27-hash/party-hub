@@ -374,7 +374,8 @@ function sendChatMessage() {
     const message = input.value.trim();
     
     if (message !== "" && currentRoomCode) {
-        socket.emit('send_chat_message', { roomCode: currentRoomCode, message });
+        
+        socket.emit('send_impostor_chat', { roomCode: currentRoomCode, message });
         input.value = "";
     }
 }
