@@ -144,6 +144,7 @@ socket.on('trivia_game_started', (qDataList) => {
 
 function showOnlineQuestion() {
     if (currentQuestionIndex >= questions.length) {
+        clearInterval(timerInterval);
         socket.emit('submit_trivia_score', { roomCode, score });
         return;
     }
@@ -160,8 +161,12 @@ function showOnlineQuestion() {
         btn.className = 'secondary-btn';
         btn.innerText = opt;
         btn.onclick = () => {
+            clearInterval(timerInterval);
             disableOptions();
             if (idx === qData.correct) score += 10;
+            
+            currentQuestionIndex++;
+            setTimeout(showOnlineQuestion, 500);
         };
         container.appendChild(btn);
     });
