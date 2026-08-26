@@ -403,7 +403,10 @@ socket.on('impostor_receive_chat', ({ sender, message }) => {
     const chatContainer = document.getElementById('chatMessages');
     if (!chatContainer) return;
 
-    const isMe = sender === document.getElementById('onlineNickname').value.trim();
+    const nickInput = document.getElementById('onlineNickname');
+    const myName = nickInput ? nickInput.value.trim() : "";
+    const isMe = myName !== "" && sender === myName;
+
     const msgElement = document.createElement('div');
     msgElement.style.padding = "6px 10px";
     msgElement.style.borderRadius = "8px";
@@ -423,7 +426,7 @@ socket.on('impostor_receive_chat', ({ sender, message }) => {
 
     chatContainer.appendChild(msgElement);
     chatContainer.scrollTop = chatContainer.scrollHeight;
-});
+});;
 
 socket.on('impostor_error', (msg) => {
     alert(msg);
