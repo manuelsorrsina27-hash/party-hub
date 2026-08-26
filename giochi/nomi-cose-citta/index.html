@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nomi, Cose, Città - Party Hub</title>
+    <link rel="stylesheet" href="../../css/hub.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="../../index.html" class="back-link">← Torna all'Hub</a>
+            <h1>✏️ Nomi, Cose, Città</h1>
+        </header>
+
+        <!-- Selezione Modalità -->
+        <div id="modeSelector" class="card" style="text-align: center;">
+            <h3>Scegli Modalità di Gioco</h3>
+            <div class="button-group" style="margin-top: 15px;">
+                <button type="button" id="btnModeLocal" class="primary-btn">📱 Gioca in Locale (Un Telefono)</button>
+                <button type="button" id="btnModeOnline" class="secondary-btn">🌐 Gioca Online (Multiplayer)</button>
+            </div>
+        </div>
+
+        <!-- Lobby Online -->
+        <div id="onlineLobby" class="card" style="display: none;">
+            <h3>Stanza Multiplayer</h3>
+            <div class="input-group">
+                <label for="nicknameInput">Il tuo Nickname</label>
+                <input type="text" id="nicknameInput" placeholder="Inserisci il tuo nome...">
+            </div>
+
+            <div class="button-group" style="margin-bottom: 15px;">
+                <button type="button" id="tabCreate" class="secondary-btn">Crea Stanza</button>
+                <button type="button" id="tabJoin" class="secondary-btn">Unisciti a Stanza</button>
+            </div>
+
+            <div id="roomCodeContainer" class="input-group" style="display: none;">
+                <label for="roomCodeInput">Codice Stanza</label>
+                <input type="text" id="roomCodeInput" placeholder="Es. X1Y2" style="text-transform: uppercase;">
+            </div>
+
+            <div class="button-group">
+                <button type="button" id="btnDoCreate" class="primary-btn" style="display: none;">Crea Stanza Now</button>
+                <button type="button" id="btnDoJoin" class="primary-btn" style="display: none;">Entra nella Stanza</button>
+            </div>
+
+            <div id="roomStatus"></div>
+            <div id="playerList" style="margin-top: 10px;"></div>
+        </div>
+
+        <!-- Gestione Categorie -->
+        <div id="catManagerBox" class="card" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3>Categorie di Gioco</h3>
+                <span id="modeBadge" style="background: #e0f2fe; color: var(--accent-blue-dark); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700;">-</span>
+            </div>
+            
+            <div id="catChipsContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;"></div>
+
+            <div id="addCatRow" style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <input type="text" id="newCatInput" placeholder="Nuova categoria..." style="flex: 1;">
+                <button type="button" id="btnAddCat" class="secondary-btn" style="width: auto;">Aggiungi</button>
+            </div>
+
+            <button type="button" id="btnResetCat" class="secondary-btn" style="width: 100%; border-color: #ef4444; color: #ef4444; margin-top: 5px;">
+                🔄 Resetta tutte le categorie
+            </button>
+        </div>
+
+        <!-- Area di Gioco -->
+        <div id="gameArea" class="card" style="display: none;">
+            <!-- Lettera e Avviso STOP -->
+            <div id="gameHeaderDisplay" style="text-align: center; margin-bottom: 20px;">
+                <div style="background: linear-gradient(135deg, #0284c7, #1e3a8a); border-radius: var(--radius-lg); padding: 20px; color: white; box-shadow: 0 8px 20px var(--play-glow); margin-bottom: 15px;">
+                    <span style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.9;">Lettera della Manche</span>
+                    <h1 id="letterDisplay" style="font-size: 4.5rem; font-weight: 700; margin: 4px 0 0 0; line-height: 1;">?</h1>
+                </div>
+
+                <div id="stopNotice" style="display: none; color: #ef4444; font-weight: 700; font-size: 1.1rem; margin-top: 8px;">
+                    ⚠️ STOP PREMUTO! Ultimi <span id="stopCountdownDisplay">10</span>s!
+                </div>
+            </div>
+
+            <div class="button-group" style="margin-bottom: 20px;">
+                <button type="button" id="startBtn" class="primary-btn">🚀 Avvia Manche</button>
+                <button type="button" id="stopBtn" class="secondary-btn" style="border-color: #ef4444; color: #ef4444;">🛑 STOP!</button>
+            </div>
+
+            <!-- Form Inserimento Risposte -->
+            <form id="gameForm" style="display: flex; flex-direction: column; gap: 12px;"></form>
+
+            <!-- Confronto Risposte Online -->
+            <div id="answersComparison"></div>
+
+            <!-- Calcolo Punteggio Manche -->
+            <div id="scoreSection" style="display: none; margin-top: 25px; border-top: 2px solid var(--border-color); padding-top: 15px;">
+                <div id="scoreRows"></div>
+                <div style="margin-top: 15px; text-align: right; font-size: 1.2rem; font-weight: 700; color: #16a34a;">
+                    Punteggio Totale: <span id="totalPoints">0</span> pt
+                </div>
+            </div>
+
+            <!-- Classifica Online -->
+            <div id="leaderboardRows" style="margin-top: 15px;"></div>
+
+            <!-- Prossima Manche -->
+            <button type="button" id="nextRoundBtn" class="primary-btn" style="display: none; margin-top: 20px;">➡️ Prossima Manche</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="../../js/nomi-cose-citta.js"></script>
+</body>
+</html>

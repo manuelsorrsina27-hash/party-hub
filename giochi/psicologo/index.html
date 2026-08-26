@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lo Psicologo - Party Hub</title>
+    <link rel="stylesheet" href="../../css/hub.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="../../index.html" class="back-link">← Torna all'Hub</a>
+            <h1>🧠 Lo Psicologo</h1>
+        </header>
+
+        <!-- Setup Iniziale -->
+        <div id="setupScreen" class="card">
+            <h3>Preparazione Partita</h3>
+            <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.95rem;">
+                Inserisci i nomi dei partecipanti. Un giocatore verrà estratto come Psicologo, mentre gli altri saranno i Pazienti e dovranno seguire la stessa Regola Segreta!
+            </p>
+            
+            <div class="input-group">
+                <label>Giocatori (separati da virgola)</label>
+                <input type="text" id="localPlayersInput" placeholder="Mario, Luca, Anna, Giulia">
+            </div>
+            
+            <button class="primary-btn" onclick="startPsychologistGame()">Estrai Ruoli e Regola</button>
+        </div>
+
+        <!-- Schermata di Gioco / Risultati -->
+        <div id="gameScreen" class="card" style="display: none; text-align: center;">
+            <div style="background: #e0f2fe; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <h2 style="color: #0369a1; margin-bottom: 5px;">👨‍⚕️ Lo Psicologo è:</h2>
+                <h1 id="psychologistName" style="color: #0c4a6e; font-size: 2rem; margin: 0;">-</h1>
+            </div>
+
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+                <strong>Lo Psicologo deve allontanarsi o chiudere gli occhi</strong> mentre gli altri giocatori leggono la regola qui sotto!
+            </p>
+
+            <div style="background: #f8fafc; border: 2px dashed #cbd5e1; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <h4 style="color: #475569; margin-bottom: 10px;"> Regola Segreta dei Pazienti:</h4>
+                <p id="secretRuleText" style="color: #e11d48; font-size: 1.25rem; font-weight: bold; margin: 0;"></p>
+            </div>
+
+            <div class="button-group">
+                <button class="secondary-btn" onclick="startPsychologistGame()">🔄 Altra Regola / Nuova Partita</button>
+                <button class="primary-btn" onclick="location.reload()">Menu Principale</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/psicologo.js"></script>
+</body>
+</html>
