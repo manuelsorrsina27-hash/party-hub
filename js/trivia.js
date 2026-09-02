@@ -130,14 +130,12 @@ function switchMode(mode) {
     document.getElementById('onlineSetup').style.display = mode === 'online' ? 'block' : 'none';
 }
 
-// Funzione per mostrare/nascondere le opzioni in base alla scelta della modalità di gioco locale
+// Funzione per mostrare/nascondere il selettore del numero di domande in base alla scelta della modalità
 function handleGameModeChange() {
     gamePlayMode = document.getElementById('gamePlayModeSelect').value;
     const countGroup = document.getElementById('questionCountGroup');
-    if (gamePlayMode === 'questions') {
-        countGroup.style.display = 'block';
-    } else {
-        countGroup.style.display = 'none';
+    if (countGroup) {
+        countGroup.style.display = (gamePlayMode === 'questions') ? 'block' : 'none';
     }
 }
 
@@ -161,10 +159,14 @@ function startLocalGame() {
         }
     }
 
-    gamePlayMode = document.getElementById('gamePlayModeSelect').value;
-    targetQuestionCount = parseInt(document.getElementById('questionCountSelect').value) || 10;
+    // Legge la modalità scelta dall'utente (questions o lives)
+    const modeSelect = document.getElementById('gamePlayModeSelect');
+    if (modeSelect) gamePlayMode = modeSelect.value;
 
-    // Prendi un numero casuale di domande fino a 100 in base alla scelta (o tutte se mod a vite)
+    const countSelect = document.getElementById('questionCountSelect');
+    if (countSelect) targetQuestionCount = parseInt(countSelect.value) || 10;
+
+    // Se è a vite, prendiamo tutte le domande (o un pool grande); se è a domande fisse, tagliamo al numero scelto
     const poolSize = gamePlayMode === 'lives' ? triviaData.length : Math.min(targetQuestionCount, triviaData.length);
     questions = [...triviaData].sort(() => Math.random() - 0.5).slice(0, poolSize);
     
@@ -177,13 +179,13 @@ function startLocalGame() {
 }
 
 function showQuestion() {
-    // Se finiscono le domande in modalità domande, vai ai risultati
+    // Controllo fine partita per modalità "Domande"
     if (gamePlayMode === 'questions' && currentQuestionIndex >= questions.length) {
         showLocalResults();
         return;
     }
 
-    // Se siamo in modalità a vite, controlla quanti giocatori sono rimasti in gioco
+    // Controllo fine partita per modalità "Vite" (tutti eliminati o finite le domande)
     if (gamePlayMode === 'lives') {
         const activePlayers = localPlayers.filter(p => !p.eliminated);
         if (activePlayers.length === 0 || currentQuestionIndex >= questions.length) {
@@ -192,7 +194,7 @@ function showQuestion() {
         }
     }
 
-    // Salta i giocatori eventualmente eliminati nella modalità a vite
+    // Salta i giocatori che sono stati eliminati
     let loops = 0;
     while (localPlayers[currentPlayerIndex].eliminated && loops < localPlayers.length) {
         currentPlayerIndex = (currentPlayerIndex + 1) % localPlayers.length;
@@ -205,16 +207,16 @@ function showQuestion() {
         return;
     }
 
-    // Mostra intestazione turno e informazioni di gioco
+    // Interfaccia turno e vite
     let turnText = `👤 Turno di: ${currentPlayer.name}`;
     if (gamePlayMode === 'lives') {
         let hearts = '❤️'.repeat(Math.max(0, currentPlayer.lives)) + '🖤'.repeat(Math.max(0, MAX_LIVES - currentPlayer.lives));
         turnText += ` | Vite: ${hearts}`;
     }
-    document.getElementById('currentTurnPlayer').innerText = turnText;
-    document.getElementById('questionCounter').innerText = `Domanda ${currentQuestionIndex + 1}${gamePlayMode === 'questions' ? '/' + questions.length : ''}`;
     
-    // Mostra le statistiche in tempo reale SPECIFICHE del giocatore di turno
+    document.getElementById('currentTurnPlayer').innerText = turnText;
+    document.getElementById('questionCounter').innerText = `Domanda ${currentQuestionIndex + 1}${gamePlayMode === 'questions' ? '/' + questions.length : ' di ' + questions.length}`;
+    
     document.getElementById('liveCorrect').innerText = currentPlayer.correct;
     document.getElementById('liveWrong').innerText = currentPlayer.wrong;
     document.getElementById('btnNextQuestion').style.display = 'none';
@@ -233,13 +235,15 @@ function showQuestion() {
         container.appendChild(btn);
     });
 
+    // AVVIA IL TIMER PER QUESTA SINGOLA DOMANDA (Si resetta e riparte da 10 a ogni nuova domanda)
     startTimer(10, () => handleLocalAnswer(-1, qData.correct));
 }
 
 function handleLocalAnswer(selectedIndex, correctIndex) {
+    // Ferma il timer della domanda corrente
     clearInterval(timerInterval);
-    const buttons = document.querySelectorAll('#optionsContainer button');
     
+    const buttons = document.querySelectorAll('#optionsContainer button');
     buttons.forEach((btn, idx) => {
         btn.disabled = true;
         if (idx === correctIndex) {
@@ -268,14 +272,13 @@ function handleLocalAnswer(selectedIndex, correctIndex) {
 
     document.getElementById('liveCorrect').innerText = currentPlayer.correct;
     document.getElementById('liveWrong').innerText = currentPlayer.wrong;
-
     document.getElementById('btnNextQuestion').style.display = 'block';
 }
 
 function nextQuestionLocal() {
     currentQuestionIndex++;
     currentPlayerIndex = (currentPlayerIndex + 1) % localPlayers.length;
-    showQuestion();
+    showQuestion(); // All'interno di showQuestion il timer viene resettato e fatto ripartire
 }
 
 function showLocalResults() {
@@ -284,7 +287,6 @@ function showLocalResults() {
     
     let html = '<ul style="list-style: none; padding: 0; text-align: left;">';
     
-    // Ordina i giocatori: prima per eliminazione (chi è arrivato più avanti o ha più punti), poi per punteggio
     localPlayers.sort((a, b) => {
         if (gamePlayMode === 'lives') {
             if (a.eliminated !== b.eliminated) return a.eliminated ? 1 : -1;
@@ -313,11 +315,12 @@ function showLocalResults() {
 function startTimer(seconds, onExpire) {
     clearInterval(timerInterval);
     let left = seconds;
-    document.getElementById('timer').innerText = left;
+    const timerEl = document.getElementById('timer');
+    if (timerEl) timerEl.innerText = left;
     
     timerInterval = setInterval(() => {
         left--;
-        document.getElementById('timer').innerText = left;
+        if (timerEl) timerEl.innerText = left;
         if (left <= 0) {
             clearInterval(timerInterval);
             onExpire();

@@ -27,6 +27,27 @@
                     <label>Giocatori (uno per riga o separati da virgola, oppure inserisci i nomi)</label>
                     <input type="text" id="localPlayersInput" placeholder="Es. Marco, Anna, Luca">
                 </div>
+
+                <!-- Selettore Modalità di Gioco (Domande o Vite) -->
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 0.9rem; margin-bottom: 5px; color: var(--text-muted);">Modalità di Svolgimento</label>
+                    <select id="gamePlayModeSelect" onchange="handleGameModeChange()" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; background: var(--bg-card, #fff); color: inherit;">
+                        <option value="questions">Numero fisso di domande</option>
+                        <option value="lives">Modalità a Vite (3 Errori max)</option>
+                    </select>
+                </div>
+
+                <!-- Selettore Quantità Domande (Visibile solo se si sceglie "Numero fisso di domande") -->
+                <div class="input-group" id="questionCountGroup" style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 0.9rem; margin-bottom: 5px; color: var(--text-muted);">Quante domande fare?</label>
+                    <select id="questionCountSelect" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; background: var(--bg-card, #fff); color: inherit;">
+                        <option value="10">10 Domande</option>
+                        <option value="20">20 Domande</option>
+                        <option value="50">50 Domande</option>
+                        <option value="100">Tutte (100 Domande)</option>
+                    </select>
+                </div>
+
                 <p style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.9rem;">Inserite i nomi dei partecipanti per sfidarvi a turno o sullo stesso dispositivo!</p>
                 <button class="primary-btn" onclick="startLocalGame()">Inizia Sfida Locale</button>
             </div>
