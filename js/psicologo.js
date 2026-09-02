@@ -1,4 +1,4 @@
-// Lista di regole e sintomi segreti
+// Lista di regole e sintomi segreti[cite: 4]
 const rulesList = [
     "Rispondi sempre mettendo la personalità/il carattere del giocatore alla tua sinistra.",
     "Devi toccarti il naso o il mento subito prima di iniziare a rispondere a qualsiasi domanda.",
@@ -21,17 +21,25 @@ function startPsychologistGame() {
         return;
     }
 
-    // Estrazione casuale dello Psicologo
+    // Estrazione casuale dello Psicologo[cite: 4]
     const psychoIndex = Math.floor(Math.random() * players.length);
     const chosenPsycho = players[psychoIndex];
 
-    // Estrazione casuale della regola
+    // Estrazione casuale della regola[cite: 4]
     const chosenRule = rulesList[Math.floor(Math.random() * rulesList.length)];
 
-    // Aggiornamento DOM
+    // Aggiornamento DOM per la prima schermata (Solo lo psicologo)[cite: 4]
     document.getElementById('psychologistName').innerText = chosenPsycho;
     document.getElementById('secretRuleText').innerText = `"${chosenRule}"`;
 
+    // Mostra la schermata di rivelazione dello psicologo e nascondi le altre
     document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('gameScreen').style.display = 'none';
+    document.getElementById('psychologistRevealScreen').style.display = 'block';
+}
+
+function showSecretRuleScreen() {
+    // Nascondi la schermata dello psicologo e mostra la regola segreta ai pazienti
+    document.getElementById('psychologistRevealScreen').style.display = 'none';
     document.getElementById('gameScreen').style.display = 'block';
 }
