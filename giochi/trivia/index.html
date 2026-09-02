@@ -23,7 +23,11 @@
 
             <!-- Modalità Locale -->
             <div id="localSetup">
-                <p style="margin-bottom: 15px; color: var(--text-muted);">Rispondi al maggior numero di domande a risposta multipla entro il tempo limite!</p>
+                <div class="input-group">
+                    <label>Giocatori (uno per riga o separati da virgola, oppure inserisci i nomi)</label>
+                    <input type="text" id="localPlayersInput" placeholder="Es. Marco, Anna, Luca">
+                </div>
+                <p style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.9rem;">Inserite i nomi dei partecipanti per sfidarvi a turno o sullo stesso dispositivo!</p>
                 <button class="primary-btn" onclick="startLocalGame()">Inizia Sfida Locale</button>
             </div>
 
@@ -54,10 +58,20 @@
         <div id="gameScreen" class="card" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <span id="questionCounter" style="font-weight: bold;">Domanda 1/10</span>
+                <span id="currentTurnPlayer" style="background: #e0f2fe; color: var(--accent-blue-dark); padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;"></span>
                 <span id="timerBadge" style="background: var(--accent-blue); color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold;">⏱️ <span id="timer">10</span>s</span>
             </div>
+            
+            <!-- Barra in tempo reale risposte corrette/errate -->
+            <div id="liveStats" style="display: flex; gap: 15px; margin-bottom: 15px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
+                <span>✅ Corrette: <span id="liveCorrect" style="color: #16a34a;">0</span></span>
+                <span>❌ Errate: <span id="liveWrong" style="color: #ef4444;">0</span></span>
+            </div>
+
             <h3 id="questionText" style="margin-bottom: 20px; font-size: 1.2rem; text-align: center;"></h3>
-            <div id="optionsContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            <div id="optionsContainer" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;"></div>
+            
+            <button id="btnNextQuestion" class="primary-btn" style="display: none;" onclick="nextQuestionLocal()">Avanti ➡️</button>
         </div>
 
         <!-- Schermata Finale Risultati -->
@@ -68,7 +82,7 @@
         </div>
     </div>
 
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="../../js/trivia.js"></script>
 </body>
 </html>

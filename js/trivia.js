@@ -1,12 +1,22 @@
-const socket = io();
+let socket;
+try {
+    socket = io();
+} catch (e) {
+    console.log("Socket.io non disponibile, modalità online disattivata.");
+}
 
 let currentMode = 'local';
 let roomCode = '';
 let isHost = false;
 let currentQuestionIndex = 0;
-let score = 0;
 let timerInterval = null;
 let questions = [];
+
+// Variabili per la modalità locale con giocatori multipli
+let localPlayers = [];
+let currentPlayerIndex = 0;
+let correctCount = 0;
+let wrongCount = 0;
 
 // Lista Domande Trivia
 const triviaData = [
@@ -32,9 +42,23 @@ function switchMode(mode) {
 
 // --- LOGICA LOCALE ---
 function startLocalGame() {
-    questions = [...triviaData].sort(() => Math.random() - 0.5);
+    const inputVal = document.getElementById('localPlayersInput').value.trim();
+    if (!inputVal) {
+        localPlayers = [{ name: "Giocatore 1", score: 0, correct: 0, wrong: 0 }];
+    } else {
+        localPlayers = inputVal.split(',').map(n => n.name = n.trim()).filter(n => n.length > 0).map(name => ({
+            name, score: 0, correct: 0, wrong: 0
+        }));
+        if (localPlayers.length === 0) {
+            localPlayers = [{ name: "Giocatore 1", score: 0, correct: 0, wrong: 0 }];
+        }
+    }
+
+    questions = [...triviaData].sort(() => Math.random() - 0.5).slice(0, 5); // 5 o 10 domande
     currentQuestionIndex = 0;
-    score = 0;
+    currentPlayerIndex = 0;
+    correctCount = 0;
+    wrongCount = 0;
     
     document.getElementById('setupScreen').style.display = 'none';
     document.getElementById('gameScreen').style.display = 'block';
@@ -47,8 +71,14 @@ function showQuestion() {
         return;
     }
 
-    const qData = questions[currentQuestionIndex];
+    const currentPlayer = localPlayers[currentPlayerIndex];
+    document.getElementById('currentTurnPlayer').innerText = `👤 Turno di: ${currentPlayer.name}`;
     document.getElementById('questionCounter').innerText = `Domanda ${currentQuestionIndex + 1}/${questions.length}`;
+    document.getElementById('liveCorrect').innerText = correctCount;
+    document.getElementById('liveWrong').innerText = wrongCount;
+    document.getElementById('btnNextQuestion').style.display = 'none';
+
+    const qData = questions[currentQuestionIndex];
     document.getElementById('questionText').innerText = qData.q;
     
     const container = document.getElementById('optionsContainer');
@@ -58,24 +88,68 @@ function showQuestion() {
         const btn = document.createElement('button');
         btn.className = 'secondary-btn';
         btn.innerText = opt;
-        btn.onclick = () => handleLocalAnswer(idx === qData.correct);
+        btn.onclick = () => handleLocalAnswer(idx, qData.correct);
         container.appendChild(btn);
     });
 
-    startTimer(10, () => handleLocalAnswer(false));
+    startTimer(10, () => handleLocalAnswer(-1, qData.correct));
 }
 
-function handleLocalAnswer(isCorrect) {
+function handleLocalAnswer(selectedIndex, correctIndex) {
     clearInterval(timerInterval);
-    if (isCorrect) score += 10;
+    const buttons = document.querySelectorAll('#optionsContainer button');
+    
+    // Disabilita tutti i pulsanti e mostra la risposta corretta
+    buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === correctIndex) {
+            btn.style.background = '#16a34a'; // Verde per la corretta
+            btn.style.color = 'white';
+        } else if (idx === selectedIndex && idx !== correctIndex) {
+            btn.style.background = '#ef4444'; // Rosso per l'errata selezionata
+            btn.style.color = 'white';
+        }
+    });
+
+    const currentPlayer = localPlayers[currentPlayerIndex];
+
+    if (selectedIndex === correctIndex) {
+        currentPlayer.score += 10;
+        currentPlayer.correct++;
+        correctCount++;
+    } else {
+        currentPlayer.wrong++;
+        wrongCount++;
+    }
+
+    document.getElementById('liveCorrect').innerText = correctCount;
+    document.getElementById('liveWrong').innerText = wrongCount;
+
+    // Mostra il pulsante Avanti
+    document.getElementById('btnNextQuestion').style.display = 'block';
+}
+
+function nextQuestionLocal() {
     currentQuestionIndex++;
+    // Passa al giocatore successivo per ruotare i turni sullo stesso telefono, oppure prosegui
+    currentPlayerIndex = (currentPlayerIndex + 1) % localPlayers.length;
     showQuestion();
 }
 
 function showLocalResults() {
     document.getElementById('gameScreen').style.display = 'none';
     document.getElementById('resultsScreen').style.display = 'block';
-    document.getElementById('scoreboard').innerHTML = `<h4>Punteggio Finale: <strong>${score} Punti</strong></h4>`;
+    
+    let html = '<ul style="list-style: none; padding: 0;">';
+    localPlayers.sort((a, b) => b.score - a.score).forEach((p, i) => {
+        html += `<li style="padding: 10px; border-bottom: 1px solid #ddd; font-size: 1.1rem;">
+            ${i + 1}. <strong>${p.name}</strong> — Punti: <strong>${p.score}</strong> 
+            <span style="font-size: 0.85rem; color: var(--text-muted); display: block;">(✅ ${p.correct} giuste | ❌ ${p.wrong} errate)</span>
+        </li>`;
+    });
+    html += '</ul>';
+    
+    document.getElementById('scoreboard').innerHTML = html;
 }
 
 function startTimer(seconds, onExpire) {
@@ -95,12 +169,14 @@ function startTimer(seconds, onExpire) {
 
 // --- LOGICA ONLINE ---
 function createOnlineRoom() {
+    if (!socket) return alert("Connessione al server non disponibile.");
     const nick = document.getElementById('onlineNickname').value.trim();
     if (!nick) return alert("Inserisci un nickname!");
     socket.emit('create_trivia_room', { nickname: nick });
 }
 
 function joinOnlineRoom() {
+    if (!socket) return alert("Connessione al server non disponibile.");
     const nick = document.getElementById('onlineNickname').value.trim();
     const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
     if (!nick || !code) return alert("Inserisci Nickname e Codice Stanza!");
@@ -108,19 +184,53 @@ function joinOnlineRoom() {
 }
 
 function startOnlineGame() {
+    if (!socket) return;
     socket.emit('start_trivia_game', { roomCode });
 }
 
-socket.on('trivia_room_created', (code) => {
-    roomCode = code;
-    isHost = true;
-    setupLobbyUI();
-});
+if (socket) {
+    socket.on('trivia_room_created', (code) => {
+        roomCode = code;
+        isHost = true;
+        setupLobbyUI();
+    });
 
-socket.on('trivia_room_joined', (code) => {
-    roomCode = code;
-    setupLobbyUI();
-});
+    socket.on('trivia_room_joined', (code) => {
+        roomCode = code;
+        setupLobbyUI();
+    });
+
+    socket.on('trivia_update_players', (players) => {
+        const list = document.getElementById('playersList');
+        if (list) {
+            list.innerHTML = players.map(p => `<li>👤 ${p.nickname}</li>`).join('');
+        }
+    });
+
+    socket.on('trivia_game_started', (qDataList) => {
+        questions = qDataList;
+        currentQuestionIndex = 0;
+        document.getElementById('setupScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        showOnlineQuestion();
+    });
+
+    socket.on('trivia_game_over', (finalScores) => {
+        clearInterval(timerInterval);
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('resultsScreen').style.display = 'block';
+        
+        let html = '<ul style="list-style: none; padding: 0;">';
+        finalScores.sort((a, b) => b.score - a.score).forEach((p, i) => {
+            html += `<li style="padding: 8px; border-bottom: 1px solid #ddd;">${i + 1}. <strong>${p.nickname}</strong>: ${p.score} Punti</li>`;
+        });
+        html += '</ul>';
+        
+        document.getElementById('scoreboard').innerHTML = html;
+    });
+
+    socket.on('trivia_error', (msg) => alert(msg));
+}
 
 function setupLobbyUI() {
     document.getElementById('onlineLobbyArea').style.display = 'block';
@@ -128,24 +238,10 @@ function setupLobbyUI() {
     if (isHost) document.getElementById('btnStartOnline').style.display = 'block';
 }
 
-socket.on('trivia_update_players', (players) => {
-    const list = document.getElementById('playersList');
-    list.innerHTML = players.map(p => `<li>👤 ${p.nickname}</li>`).join('');
-});
-
-socket.on('trivia_game_started', (qDataList) => {
-    questions = qDataList;
-    currentQuestionIndex = 0;
-    score = 0;
-    document.getElementById('setupScreen').style.display = 'none';
-    document.getElementById('gameScreen').style.display = 'block';
-    showOnlineQuestion();
-});
-
 function showOnlineQuestion() {
     if (currentQuestionIndex >= questions.length) {
         clearInterval(timerInterval);
-        socket.emit('submit_trivia_score', { roomCode, score });
+        if (socket) socket.emit('submit_trivia_score', { roomCode, score: window.onlineScore || 0 });
         return;
     }
 
@@ -163,8 +259,9 @@ function showOnlineQuestion() {
         btn.onclick = () => {
             clearInterval(timerInterval);
             disableOptions();
-            if (idx === qData.correct) score += 10;
-            
+            if (idx === qData.correct) {
+                window.onlineScore = (window.onlineScore || 0) + 10;
+            }
             currentQuestionIndex++;
             setTimeout(showOnlineQuestion, 500);
         };
@@ -182,19 +279,3 @@ function disableOptions() {
     const btns = document.querySelectorAll('#optionsContainer button');
     btns.forEach(b => b.disabled = true);
 }
-
-socket.on('trivia_game_over', (finalScores) => {
-    clearInterval(timerInterval);
-    document.getElementById('gameScreen').style.display = 'none';
-    document.getElementById('resultsScreen').style.display = 'block';
-    
-    let html = '<ul style="list-style: none; padding: 0;">';
-    finalScores.sort((a, b) => b.score - a.score).forEach((p, i) => {
-        html += `<li style="padding: 8px; border-bottom: 1px solid #ddd;">${i + 1}. <strong>${p.nickname}</strong>: ${p.score} Punti</li>`;
-    });
-    html += '</ul>';
-    
-    document.getElementById('scoreboard').innerHTML = html;
-});
-
-socket.on('trivia_error', (msg) => alert(msg));
