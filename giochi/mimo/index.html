@@ -7,102 +7,113 @@
     <link rel="stylesheet" href="../../css/hub.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <a href="../../index.html" class="back-link">← Torna all'Hub</a>
-            <h1>🎭 Il Mimo (Da Tavolo)</h1>
+    <div class="page-wrapper" style="min-height: 100vh; display: flex; flex-direction: column;">
+        
+        <!-- Header di gioco -->
+        <header style="background: var(--bg-card, #ffffff); border-bottom: 1px solid #e2e8f0; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <h1 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">🎭 Il Mimo (Da Tavolo)</h1>
+            <a href="../../index.html" class="back-link" style="font-weight: 600; text-decoration: none; color: var(--accent-blue, #0284c7);">← Torna all'Hub</a>
         </header>
 
-        <!-- Setup Iniziale Squadre e Durata -->
-        <div id="setupScreen" class="card">
-            <h3>Configurazione Partita</h3>
-            <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.95rem;">
-                Inserisci le squadre partecipanti. Ogni squadra a turno affronterà una manche composta da 6 carte mimo.
-            </p>
-            
-            <div class="input-group">
-                <label>Squadre (separate da virgola)</label>
-                <input type="text" id="localPlayersInput" placeholder="Squadra A, Squadra B, Squadra C">
-            </div>
-
-            <div class="input-group" style="margin-bottom: 15px;">
-                <label style="display: block; font-size: 0.9rem; margin-bottom: 5px; color: var(--text-muted);">Durata Totale della Manche</label>
-                <select id="matchDurationSelect" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; background: var(--bg-card, #fff); color: inherit;">
-                    <option value="90">1 minuto e 30 secondi (15s a carta)</option>
-                    <option value="120" selected>2 minuti (20s a carta)</option>
-                    <option value="180">3 minuti (30s a carta)</option>
-                </select>
-            </div>
-            
-            <button class="primary-btn" onclick="startMimeGame()">Avanti: Componi Mazzo</button>
-        </div>
-
-        <!-- Schermata Scelta / Composizione Mazzo (Comune per il round) -->
-        <div id="deckBuilderScreen" class="card" style="display: none;">
-            <h3 id="deckBuilderTitle">Composizione Mazzo per il Round</h3>
-            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem;">
-                Scegli la composizione delle 6 carte per questo round (puoi usare i preset rapidi o regolare i contatori fino a un totale di 6).
-            </p>
-
-            <!-- Preset Rapidi -->
-            <div class="button-group" style="margin-bottom: 20px;">
-                <button class="secondary-btn" onclick="setDeckPreset(2, 2, 2)">⚖️ Bilanciato (2 Facili, 2 Medie, 2 Difficili)</button>
-                <button class="secondary-btn" onclick="setDeckPreset(6, 0, 0)">🟢 Solo Facili</button>
-                <button class="secondary-btn" onclick="setDeckPreset(0, 0, 6)">🔴 Solo Difficili</button>
-            </div>
-
-            <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <span>🟢 Facili:</span>
-                    <input type="number" id="countEasy" value="2" min="0" max="6" style="width: 60px; padding: 5px; text-align: center;" onchange="validateDeckCount()">
+        <!-- Contenuto Principale -->
+        <main class="container" style="flex: 1; padding: 40px 20px; width: 100%; max-width: 800px; margin: 0 auto;">
+            <!-- Setup Iniziale Squadre e Durata -->
+            <div id="setupScreen" class="card">
+                <h3>Configurazione Partita</h3>
+                <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.95rem;">
+                    Inserisci le squadre partecipanti. Ogni squadra a turno affronterà una manche composta da 6 carte mimo.
+                </p>
+                
+                <div class="input-group">
+                    <label>Squadre (separate da virgola)</label>
+                    <input type="text" id="localPlayersInput" placeholder="Squadra A, Squadra B, Squadra C">
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <span>🟡 Medie:</span>
-                    <input type="number" id="countMedium" value="2" min="0" max="6" style="width: 60px; padding: 5px; text-align: center;" onchange="validateDeckCount()">
+
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 0.9rem; margin-bottom: 5px; color: var(--text-muted);">Durata Totale della Manche</label>
+                    <select id="matchDurationSelect" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; background: var(--bg-card, #fff); color: inherit;">
+                        <option value="90">1 minuto e 30 secondi (15s a carta)</option>
+                        <option value="120" selected>2 minuti (20s a carta)</option>
+                        <option value="180">3 minuti (30s a carta)</option>
+                    </select>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>🔴 Difficili:</span>
-                    <input type="number" id="countHard" value="2" min="0" max="6" style="width: 60px; padding: 5px; text-align: center;" onchange="validateDeckCount()">
+                
+                <button class="primary-btn" onclick="startMimeGame()">Avanti: Componi Mazzo</button>
+            </div>
+
+            <!-- Schermata Scelta / Composizione Mazzo (Comune per il round) -->
+            <div id="deckBuilderScreen" class="card" style="display: none;">
+                <h3 id="deckBuilderTitle">Composizione Mazzo per il Round</h3>
+                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem;">
+                    Scegli la composizione delle 6 carte per questo round (puoi usare i preset rapidi o regolare i contatori fino a un totale di 6).
+                </p>
+
+                <!-- Preset Rapidi -->
+                <div class="button-group" style="margin-bottom: 20px;">
+                    <button class="secondary-btn" onclick="setDeckPreset(2, 2, 2)">⚖️ Bilanciato (2 Facili, 2 Medie, 2 Difficili)</button>
+                    <button class="secondary-btn" onclick="setDeckPreset(6, 0, 0)">🟢 Solo Facili</button>
+                    <button class="secondary-btn" onclick="setDeckPreset(0, 0, 6)">🔴 Solo Difficili</button>
                 </div>
-                <div style="margin-top: 15px; text-align: right; font-weight: bold; font-size: 0.95rem;">
-                    Totale Carte: <span id="totalDeckCount" style="color: var(--accent-blue-dark);">6</span> / 6
+
+                <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span>🟢 Facili:</span>
+                        <input type="number" id="countEasy" value="2" min="0" max="6" style="width: 60px; padding: 5px; text-align: center;" onchange="validateDeckCount()">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span>🟡 Medie:</span>
+                        <input type="number" id="countMedium" value="2" min="0" max="6" style="width: 60px; padding: 5px; text-align: center;" onchange="validateDeckCount()">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>🔴 Difficili:</span>
+                        <input type="number" id="countHard" value="2" min="0" max="6" style="width: 60px; padding: 5px; text-align: center;" onchange="validateDeckCount()">
+                    </div>
+                    <div style="margin-top: 15px; text-align: right; font-weight: bold; font-size: 0.95rem;">
+                        Totale Carte: <span id="totalDeckCount" style="color: var(--accent-blue-dark);">6</span> / 6
+                    </div>
                 </div>
+
+                <button class="primary-btn" onclick="startRoundWithDeck()">Inizia Manche 🚀</button>
             </div>
 
-            <button class="primary-btn" onclick="startRoundWithDeck()">Inizia Manche 🚀</button>
-        </div>
+            <!-- Schermata di Gioco / Svolgimento -->
+            <div id="gameScreen" class="card" style="display: none; text-align: center;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <span id="currentTeamBadge" style="background: #e0f2fe; color: var(--accent-blue-dark); padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 0.95rem;"></span>
+                    <span style="font-weight: bold; color: var(--text-muted);">Carta <span id="cardIndexDisplay">1</span>/6</span>
+                    <span style="background: #fee2e2; color: #dc2626; padding: 6px 14px; border-radius: 20px; font-weight: bold;">⏱️ <span id="cardTimer">20</span>s</span>
+                </div>
 
-        <!-- Schermata di Gioco / Svolgimento -->
-        <div id="gameScreen" class="card" style="display: none; text-align: center;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <span id="currentTeamBadge" style="background: #e0f2fe; color: var(--accent-blue-dark); padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 0.95rem;"></span>
-                <span style="font-weight: bold; color: var(--text-muted);">Carta <span id="cardIndexDisplay">1</span>/6</span>
-                <span style="background: #fee2e2; color: #dc2626; padding: 6px 14px; border-radius: 20px; font-weight: bold;">⏱️ <span id="cardTimer">20</span>s</span>
+                <!-- Area Cambio Carta (Max 2 per manche) -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 0.9rem;">
+                    <span id="skipsLeftBadge" style="color: var(--text-muted); font-weight: 600;">🔄 Cambi carta rimasti: 2/2</span>
+                    <button id="btnSkipCard" class="secondary-btn" style="width: auto; padding: 6px 12px; font-size: 0.85rem;" onclick="skipCurrentCard()">Cambia Carta (Stessa Difficoltà)</button>
+                </div>
+
+                <!-- Carta Mimo -->
+                <div id="mimeCardBox" style="background: #f8fafc; border: 2px dashed #cbd5e1; padding: 30px; border-radius: 12px; margin-bottom: 20px; position: relative;">
+                    <span id="cardDifficultyBadge" style="position: absolute; top: 12px; right: 15px; font-size: 0.8rem; font-weight: bold; padding: 3px 8px; border-radius: 6px;"></span>
+                    <p id="instructionText" style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 10px;">Mima la parola senza parlare!</p>
+                    <h2 id="secretWordDisplay" style="color: #0f172a; font-size: 2.2rem; margin: 15px 0;">-</h2>
+                </div>
+
+                <!-- Pulsante Indovinato -->
+                <button class="primary-btn" style="background: #16a34a; font-size: 1.1rem; padding: 14px;" onclick="markCardGuessed()">✅ Indovinato! (+1 Punto)</button>
             </div>
 
-            <!-- Area Cambio Carta (Max 2 per manche) -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 0.9rem;">
-                <span id="skipsLeftBadge" style="color: var(--text-muted); font-weight: 600;">🔄 Cambi carta rimasti: 2/2</span>
-                <button id="btnSkipCard" class="secondary-btn" style="width: auto; padding: 6px 12px; font-size: 0.85rem;" onclick="skipCurrentCard()">Cambia Carta (Stessa Difficoltà)</button>
+            <!-- Schermata Finale Risultati -->
+            <div id="resultsScreen" class="card" style="display: none; text-align: center;">
+                <h3>🏆 Classifica Finale</h3>
+                <div id="scoreboard" style="margin: 20px 0;"></div>
+                <button class="primary-btn" onclick="location.reload()">🔄 Nuova Partita</button>
             </div>
+        </main>
 
-            <!-- Carta Mimo -->
-            <div id="mimeCardBox" style="background: #f8fafc; border: 2px dashed #cbd5e1; padding: 30px; border-radius: 12px; margin-bottom: 20px; position: relative;">
-                <span id="cardDifficultyBadge" style="position: absolute; top: 12px; right: 15px; font-size: 0.8rem; font-weight: bold; padding: 3px 8px; border-radius: 6px;"></span>
-                <p id="instructionText" style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 10px;">Mima la parola senza parlare!</p>
-                <h2 id="secretWordDisplay" style="color: #0f172a; font-size: 2.2rem; margin: 15px 0;">-</h2>
-            </div>
+        <!-- Footer -->
+        <footer style="background: var(--bg-card, #ffffff); border-top: 1px solid #e2e8f0; text-align: center; padding: 20px; color: var(--text-muted, #64748b); font-size: 0.9rem;">
+            Party Hub — Creato per serate tra amici 🎲
+        </footer>
 
-            <!-- Pulsante Indovinato -->
-            <button class="primary-btn" style="background: #16a34a; font-size: 1.1rem; padding: 14px;" onclick="markCardGuessed()">✅ Indovinato! (+1 Punto)</button>
-        </div>
-
-        <!-- Schermata Finale Risultati -->
-        <div id="resultsScreen" class="card" style="display: none; text-align: center;">
-            <h3>🏆 Classifica Finale</h3>
-            <div id="scoreboard" style="margin: 20px 0;"></div>
-            <button class="primary-btn" onclick="location.reload()">🔄 Nuova Partita</button>
-        </div>
     </div>
 
     <!-- Percorso corretto dello script nella cartella principale js/ -->

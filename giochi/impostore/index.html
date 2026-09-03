@@ -7,76 +7,87 @@
     <link rel="stylesheet" href="../../css/hub.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <a href="../../index.html" class="back-link">← Torna all'Hub</a>
-            <h1>🕵️‍♂️ L'Impostore</h1>
+    <div class="page-wrapper" style="min-height: 100vh; display: flex; flex-direction: column;">
+        
+        <!-- Header di gioco -->
+        <header style="background: var(--bg-card, #ffffff); border-bottom: 1px solid #e2e8f0; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <h1 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">🕵️‍♂️ L'Impostore</h1>
+            <a href="../../index.html" class="back-link" style="font-weight: 600; text-decoration: none; color: var(--accent-blue, #0284c7);">← Torna all'Hub</a>
         </header>
 
-        <!-- Schermata Iniziale / Scelta Modalità -->
-        <div id="setupScreen" class="card">
-            <h3>Scegli Modalità di Gioco</h3>
-            <div class="button-group" style="margin-bottom: 20px;">
-                <button class="tab-btn active" id="btnLocal" onclick="switchMode('local')">📱 1 Solo Telefono</button>
-                <button class="tab-btn" id="btnOnline" onclick="switchMode('online')">🌐 Multiplayer Online</button>
-            </div>
-
-            <!-- Sezione 1 Solo Telefono (Locale) -->
-            <div id="localSetup">
-                <div class="input-group">
-                    <label>Giocatori (nomi separati da virgola)</label>
-                    <input type="text" id="localPlayersInput" placeholder="Mario, Luca, Anna, Giulia">
+        <!-- Contenuto Principale -->
+        <main class="container" style="flex: 1; padding: 40px 20px; width: 100%; max-width: 800px; margin: 0 auto;">
+            <!-- Schermata Iniziale / Scelta Modalità -->
+            <div id="setupScreen" class="card">
+                <h3>Scegli Modalità di Gioco</h3>
+                <div class="button-group" style="margin-bottom: 20px;">
+                    <button class="tab-btn active" id="btnLocal" onclick="switchMode('local')">📱 1 Solo Telefono</button>
+                    <button class="tab-btn" id="btnOnline" onclick="switchMode('online')">🌐 Multiplayer Online</button>
                 </div>
 
-                <div class="input-group">
-                    <label for="localNumImpostors">Numero di Impostori</label>
-                    <select id="localNumImpostors" style="width: 100%; padding: 12px 16px; background: #f0f9ff; border: 2px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-main); font-size: 1rem; outline: none;">
-                        <option value="1" selected>1 Impostore</option>
-                        <option value="2">2 Impostori</option>
-                        <option value="3">3 Impostori</option>
-                    </select>
+                <!-- Sezione 1 Solo Telefono (Locale) -->
+                <div id="localSetup">
+                    <div class="input-group">
+                        <label>Giocatori (nomi separati da virgola)</label>
+                        <input type="text" id="localPlayersInput" placeholder="Mario, Luca, Anna, Giulia">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="localNumImpostors">Numero di Impostori</label>
+                        <select id="localNumImpostors" style="width: 100%; padding: 12px 16px; background: #f0f9ff; border: 2px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-main); font-size: 1rem; outline: none;">
+                            <option value="1" selected>1 Impostore</option>
+                            <option value="2">2 Impostori</option>
+                            <option value="3">3 Impostori</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" style="flex-direction: row; align-items: center; justify-content: space-between; background: #f0f9ff; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md);">
+                        <label for="localShowHint" style="cursor: pointer; margin-bottom: 0;">Mostra suggerimento all'impostore</label>
+                        <input type="checkbox" id="localShowHint" style="width: 20px; height: 20px; accent-color: var(--accent-play); cursor: pointer;">
+                    </div>
+
+                    <button class="primary-btn" onclick="startLocalGame()" style="margin-top: 10px;">Inizia Passa-Telefono</button>
                 </div>
 
-                <div class="input-group" style="flex-direction: row; align-items: center; justify-content: space-between; background: #f0f9ff; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md);">
-                    <label for="localShowHint" style="cursor: pointer; margin-bottom: 0;">Mostra suggerimento all'impostore</label>
-                    <input type="checkbox" id="localShowHint" style="width: 20px; height: 20px; accent-color: var(--accent-play); cursor: pointer;">
-                </div>
+                <!-- Sezione Multiplayer Online -->
+                <div id="onlineSetup" style="display: none;">
+                    <div class="input-group">
+                        <label>Il tuo Nickname</label>
+                        <input type="text" id="onlineNickname" placeholder="Inserisci il tuo nome...">
+                    </div>
+                    <div class="button-group" style="margin-bottom: 15px;">
+                        <button class="primary-btn" onclick="createOnlineRoom()">Crea Stanza</button>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="roomCodeInput" placeholder="CODICE" style="text-transform: uppercase; text-align: center; font-weight: bold; letter-spacing: 2px;">
+                        <button class="secondary-btn" onclick="joinOnlineRoom()" style="width: auto;">Entra</button>
+                    </div>
 
-                <button class="primary-btn" onclick="startLocalGame()" style="margin-top: 10px;">Inizia Passa-Telefono</button>
-            </div>
-
-            <!-- Sezione Multiplayer Online -->
-            <div id="onlineSetup" style="display: none;">
-                <div class="input-group">
-                    <label>Il tuo Nickname</label>
-                    <input type="text" id="onlineNickname" placeholder="Inserisci il tuo nome...">
-                </div>
-                <div class="button-group" style="margin-bottom: 15px;">
-                    <button class="primary-btn" onclick="createOnlineRoom()">Crea Stanza</button>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="roomCodeInput" placeholder="CODICE" style="text-transform: uppercase; text-align: center; font-weight: bold; letter-spacing: 2px;">
-                    <button class="secondary-btn" onclick="joinOnlineRoom()" style="width: auto;">Entra</button>
-                </div>
-
-                <!-- Area della Lobby d'attesa e Chat -->
-                <div id="onlineLobbyArea" style="display: none; margin-top: 20px;">
-                    <h4 style="color: var(--accent-blue-dark); text-align: center; margin-bottom: 10px;">Stanza: <span id="displayRoomCode"></span></h4>
-                    
-                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                        <!-- Lista Giocatori -->
-                        <div style="flex: 1; min-width: 150px;">
-                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">Giocatori:</p>
-                            <ul id="playersList" style="list-style: none; padding: 0; margin-bottom: 15px; font-weight: 600;"></ul>
-                            <button id="btnStartOnline" class="primary-btn" style="display: none; margin-bottom: 10px;" onclick="startOnlineGame()">Avvia Partita Online</button>
+                    <!-- Area della Lobby d'attesa e Chat -->
+                    <div id="onlineLobbyArea" style="display: none; margin-top: 20px;">
+                        <h4 style="color: var(--accent-blue-dark); text-align: center; margin-bottom: 10px;">Stanza: <span id="displayRoomCode"></span></h4>
+                        
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <!-- Lista Giocatori -->
+                            <div style="flex: 1; min-width: 150px;">
+                                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">Giocatori:</p>
+                                <ul id="playersList" style="list-style: none; padding: 0; margin-bottom: 15px; font-weight: 600;"></ul>
+                                <button id="btnStartOnline" class="primary-btn" style="display: none; margin-bottom: 10px;" onclick="startOnlineGame()">Avvia Partita Online</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Area di Gioco / Dinamica -->
-        <div id="gameScreen" class="card" style="display: none;"></div>
+            <!-- Area di Gioco / Dinamica -->
+            <div id="gameScreen" class="card" style="display: none;"></div>
+        </main>
+
+        <!-- Footer -->
+        <footer style="background: var(--bg-card, #ffffff); border-top: 1px solid #e2e8f0; text-align: center; padding: 20px; color: var(--text-muted, #64748b); font-size: 0.9rem;">
+            Party Hub — Creato per serate tra amici 🎲
+        </footer>
+
     </div>
 
     <!-- 1. Libreria Socket.io da CDN ufficiale -->

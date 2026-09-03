@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,37 +10,48 @@
     <script src="../../js/parole-proibite.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🔥 Parole Proibite</h1>
-            <a href="../../index.html" class="back-link">← Torna all'Hub</a>
+    <div class="page-wrapper" style="min-height: 100vh; display: flex; flex-direction: column;">
+        
+        <!-- Header di gioco -->
+        <header style="background: var(--bg-card, #ffffff); border-bottom: 1px solid #e2e8f0; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <h1 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">🔥 Parole Proibite</h1>
+            <a href="../../index.html" class="back-link" style="font-weight: 600; text-decoration: none; color: var(--accent-blue, #0284c7);">← Torna all'Hub</a>
         </header>
 
-        <!-- SETUP LOCALE (Unico Telefono) -->
-        <div id="localSetupArea" class="card">
-            <h3>Configurazione Giocatori</h3>
-            <div class="input-group">
-                <label for="localPlayersInput">Nomi Giocatori o della squadra (separati da virgola):</label>
-                <input type="text" id="localPlayersInput" placeholder="Marco, Giulia, Luca">
-            </div>
-            <button onclick="handleStartButtonClick()" class="primary-btn" style="margin-top: 15px; width: 100%;">Inizia Partita</button>
-        </div>
-
-        <!-- AREA DI GIOCO -->
-        <div id="gameArea" class="card" style="display:none;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <div>⏱️ Tempo: <strong id="timerDisplay" style="color:#10b981; font-size:1.3rem;">60s</strong></div>
-                <div>⭐ Punti: <strong id="scoreDisplay" style="color:#10b981; font-size:1.3rem;">0</strong></div>
+        <!-- Contenuto Principale -->
+        <main class="container" style="flex: 1; padding: 40px 20px; width: 100%; max-width: 800px; margin: 0 auto;">
+            <!-- SETUP LOCALE (Unico Telefono) -->
+            <div id="localSetupArea" class="card">
+                <h3>Configurazione Giocatori</h3>
+                <div class="input-group">
+                    <label for="localPlayersInput">Nomi Giocatori o della squadra (separati da virgola):</label>
+                    <input type="text" id="localPlayersInput" placeholder="Marco, Giulia, Luca">
+                </div>
+                <button onclick="handleStartButtonClick()" class="primary-btn" style="margin-top: 15px; width: 100%;">Inizia Partita</button>
             </div>
 
-            <div id="cardDisplayArea" style="text-align:center;"></div>
+            <!-- AREA DI GIOCO -->
+            <div id="gameArea" class="card" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <div>⏱️ Tempo: <strong id="timerDisplay" style="color:#10b981; font-size:1.3rem;">60s</strong></div>
+                    <div>⭐ Punti: <strong id="scoreDisplay" style="color:#10b981; font-size:1.3rem;">0</strong></div>
+                </div>
 
-            <div id="actionControls" style="display:none; gap:10px; justify-content:center; margin-top:20px;">
-                <button onclick="triggerAction('taboo')" class="danger-btn" style="flex:1;">❌ Taboo (-1)</button>
-                <button onclick="triggerAction('skip')" class="secondary-btn" style="flex:1;">➡️ Passa (0)</button>
-                <button onclick="triggerAction('correct')" class="primary-btn" style="flex:1;">✅ Esatto (+1)</button>
+                <div id="cardDisplayArea" style="text-align:center;"></div>
+
+                <div id="actionControls" style="display:none; gap:10px; justify-content:center; margin-top:20px;">
+                    <button onclick="triggerAction('taboo')" class="danger-btn" style="flex:1;">❌ Taboo (-1)</button>
+                    <button onclick="triggerAction('skip')" class="secondary-btn" style="flex:1;">➡️ Passa (0)</button>
+                    <button onclick="triggerAction('correct')" class="primary-btn" style="flex:1;">✅ Esatto (+1)</button>
+                </div>
             </div>
-        </div>
+        </main>
+
+        <!-- Footer -->
+        <footer style="background: var(--bg-card, #ffffff); border-top: 1px solid #e2e8f0; text-align: center; padding: 20px; color: var(--text-muted, #64748b); font-size: 0.9rem;">
+            Party Hub — Creato per serate tra amici 🎲
+        </footer>
+
     </div>
 </body>
 </html>

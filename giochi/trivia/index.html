@@ -7,100 +7,111 @@
     <link rel="stylesheet" href="../../css/hub.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <a href="../../index.html" class="back-link">← Torna all'Hub</a>
-            <h1>⚡ Trivia Flash</h1>
+    <div class="page-wrapper" style="min-height: 100vh; display: flex; flex-direction: column;">
+        
+        <!-- Header di gioco -->
+        <header style="background: var(--bg-card, #ffffff); border-bottom: 1px solid #e2e8f0; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <h1 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">⚡ Trivia Flash</h1>
+            <a href="../../index.html" class="back-link" style="font-weight: 600; text-decoration: none; color: var(--accent-blue, #0284c7);">← Torna all'Hub</a>
         </header>
 
-        <!-- Setup iniziale -->
-        <div id="setupScreen" class="card">
-            <h3>Scegli Modalità di Gioco</h3>
-            <div class="button-group" style="margin-bottom: 20px;">
-                <button class="tab-btn active" id="btnLocal" onclick="switchMode('local')">📱 1 Solo Telefono</button>
-                <button class="tab-btn" id="btnOnline" onclick="switchMode('online')">🌐 Multiplayer Online</button>
+        <!-- Contenuto Principale -->
+        <main class="container" style="flex: 1; padding: 40px 20px; width: 100%; max-width: 800px; margin: 0 auto;">
+            <!-- Setup iniziale -->
+            <div id="setupScreen" class="card">
+                <h3>Scegli Modalità di Gioco</h3>
+                <div class="button-group" style="margin-bottom: 20px;">
+                    <button class="tab-btn active" id="btnLocal" onclick="switchMode('local')">📱 1 Solo Telefono</button>
+                    <button class="tab-btn" id="btnOnline" onclick="switchMode('online')">🌐 Multiplayer Online</button>
+                </div>
+
+                <!-- Modalità Locale -->
+                <div id="localSetup">
+                    <div class="input-group">
+                        <label>Giocatori (uno per riga o separati da virgola, oppure inserisci i nomi)</label>
+                        <input type="text" id="localPlayersInput" placeholder="Es. Marco, Anna, Luca">
+                    </div>
+
+                    <!-- Selettore Modalità di Gioco (Domande o Vite) -->
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <label style="display: block; font-size: 0.9rem; margin-bottom: 5px; color: var(--text-muted);">Modalità di Svolgimento</label>
+                        <select id="gamePlayModeSelect" onchange="handleGameModeChange()" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; background: var(--bg-card, #fff); color: inherit;">
+                            <option value="questions">Numero fisso di domande</option>
+                            <option value="lives">Modalità a Vite (3 Errori max)</option>
+                        </select>
+                    </div>
+
+                    <!-- Selettore Quantità Domande (Visibile solo se si sceglie "Numero fisso di domande") -->
+                    <div class="input-group" id="questionCountGroup" style="margin-bottom: 15px;">
+                        <label style="display: block; font-size: 0.9rem; margin-bottom: 5px; color: var(--text-muted);">Quante domande fare?</label>
+                        <select id="questionCountSelect" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; background: var(--bg-card, #fff); color: inherit;">
+                            <option value="10">10 Domande</option>
+                            <option value="20">20 Domande</option>
+                            <option value="50">50 Domande</option>
+                            <option value="100">Tutte (100 Domande)</option>
+                        </select>
+                    </div>
+
+                    <p style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.9rem;">Inserite i nomi dei partecipanti per sfidarvi a turno o sullo stesso dispositivo!</p>
+                    <button class="primary-btn" onclick="startLocalGame()">Inizia Sfida Locale</button>
+                </div>
+
+                <!-- Modalità Online -->
+                <div id="onlineSetup" style="display: none;">
+                    <div class="input-group">
+                        <label>Il tuo Nickname</label>
+                        <input type="text" id="onlineNickname" placeholder="Inserisci il tuo nome...">
+                    </div>
+                    <div class="button-group" style="margin-bottom: 15px;">
+                        <button class="primary-btn" onclick="createOnlineRoom()">Crea Stanza</button>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="roomCodeInput" placeholder="CODICE" style="text-transform: uppercase; text-align: center; font-weight: bold; letter-spacing: 2px;">
+                        <button class="secondary-btn" onclick="joinOnlineRoom()" style="width: auto;">Entra</button>
+                    </div>
+
+                    <div id="onlineLobbyArea" style="display: none; margin-top: 20px;">
+                        <h4 style="color: var(--accent-blue-dark); text-align: center; margin-bottom: 10px;">Stanza: <span id="displayRoomCode"></span></h4>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">Giocatori pronti:</p>
+                        <ul id="playersList" style="list-style: none; padding: 0; margin-bottom: 15px; font-weight: 600;"></ul>
+                        <button id="btnStartOnline" class="primary-btn" style="display: none;" onclick="startOnlineGame()">Avvia Quiz Online</button>
+                    </div>
+                </div>
             </div>
 
-            <!-- Modalità Locale -->
-            <div id="localSetup">
-                <div class="input-group">
-                    <label>Giocatori (uno per riga o separati da virgola, oppure inserisci i nomi)</label>
-                    <input type="text" id="localPlayersInput" placeholder="Es. Marco, Anna, Luca">
+            <!-- Schermata di Gioco -->
+            <div id="gameScreen" class="card" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <span id="questionCounter" style="font-weight: bold;">Domanda 1/10</span>
+                    <span id="currentTurnPlayer" style="background: #e0f2fe; color: var(--accent-blue-dark); padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;"></span>
+                    <span id="timerBadge" style="background: var(--accent-blue); color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold;">⏱️ <span id="timer">10</span>s</span>
+                </div>
+                
+                <!-- Barra in tempo reale risposte corrette/errate -->
+                <div id="liveStats" style="display: flex; gap: 15px; margin-bottom: 15px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
+                    <span>✅ Corrette: <span id="liveCorrect" style="color: #16a34a;">0</span></span>
+                    <span>❌ Errate: <span id="liveWrong" style="color: #ef4444;">0</span></span>
                 </div>
 
-                <!-- Selettore Modalità di Gioco (Domande o Vite) -->
-                <div class="input-group" style="margin-bottom: 15px;">
-                    <label style="display: block; font-size: 0.9rem; margin-bottom: 5px; color: var(--text-muted);">Modalità di Svolgimento</label>
-                    <select id="gamePlayModeSelect" onchange="handleGameModeChange()" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; background: var(--bg-card, #fff); color: inherit;">
-                        <option value="questions">Numero fisso di domande</option>
-                        <option value="lives">Modalità a Vite (3 Errori max)</option>
-                    </select>
-                </div>
-
-                <!-- Selettore Quantità Domande (Visibile solo se si sceglie "Numero fisso di domande") -->
-                <div class="input-group" id="questionCountGroup" style="margin-bottom: 15px;">
-                    <label style="display: block; font-size: 0.9rem; margin-bottom: 5px; color: var(--text-muted);">Quante domande fare?</label>
-                    <select id="questionCountSelect" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; background: var(--bg-card, #fff); color: inherit;">
-                        <option value="10">10 Domande</option>
-                        <option value="20">20 Domande</option>
-                        <option value="50">50 Domande</option>
-                        <option value="100">Tutte (100 Domande)</option>
-                    </select>
-                </div>
-
-                <p style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.9rem;">Inserite i nomi dei partecipanti per sfidarvi a turno o sullo stesso dispositivo!</p>
-                <button class="primary-btn" onclick="startLocalGame()">Inizia Sfida Locale</button>
+                <h3 id="questionText" style="margin-bottom: 20px; font-size: 1.2rem; text-align: center;"></h3>
+                <div id="optionsContainer" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;"></div>
+                
+                <button id="btnNextQuestion" class="primary-btn" style="display: none;" onclick="nextQuestionLocal()">Avanti ➡️</button>
             </div>
 
-            <!-- Modalità Online -->
-            <div id="onlineSetup" style="display: none;">
-                <div class="input-group">
-                    <label>Il tuo Nickname</label>
-                    <input type="text" id="onlineNickname" placeholder="Inserisci il tuo nome...">
-                </div>
-                <div class="button-group" style="margin-bottom: 15px;">
-                    <button class="primary-btn" onclick="createOnlineRoom()">Crea Stanza</button>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="roomCodeInput" placeholder="CODICE" style="text-transform: uppercase; text-align: center; font-weight: bold; letter-spacing: 2px;">
-                    <button class="secondary-btn" onclick="joinOnlineRoom()" style="width: auto;">Entra</button>
-                </div>
-
-                <div id="onlineLobbyArea" style="display: none; margin-top: 20px;">
-                    <h4 style="color: var(--accent-blue-dark); text-align: center; margin-bottom: 10px;">Stanza: <span id="displayRoomCode"></span></h4>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">Giocatori pronti:</p>
-                    <ul id="playersList" style="list-style: none; padding: 0; margin-bottom: 15px; font-weight: 600;"></ul>
-                    <button id="btnStartOnline" class="primary-btn" style="display: none;" onclick="startOnlineGame()">Avvia Quiz Online</button>
-                </div>
+            <!-- Schermata Finale Risultati -->
+            <div id="resultsScreen" class="card" style="display: none; text-align: center;">
+                <h3>🏆 Classifica Finale</h3>
+                <div id="scoreboard" style="margin: 20px 0;"></div>
+                <button class="primary-btn" onclick="location.reload()">Torna al Menu</button>
             </div>
-        </div>
+        </main>
 
-        <!-- Schermata di Gioco -->
-        <div id="gameScreen" class="card" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <span id="questionCounter" style="font-weight: bold;">Domanda 1/10</span>
-                <span id="currentTurnPlayer" style="background: #e0f2fe; color: var(--accent-blue-dark); padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;"></span>
-                <span id="timerBadge" style="background: var(--accent-blue); color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold;">⏱️ <span id="timer">10</span>s</span>
-            </div>
-            
-            <!-- Barra in tempo reale risposte corrette/errate -->
-            <div id="liveStats" style="display: flex; gap: 15px; margin-bottom: 15px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
-                <span>✅ Corrette: <span id="liveCorrect" style="color: #16a34a;">0</span></span>
-                <span>❌ Errate: <span id="liveWrong" style="color: #ef4444;">0</span></span>
-            </div>
+        <!-- Footer -->
+        <footer style="background: var(--bg-card, #ffffff); border-top: 1px solid #e2e8f0; text-align: center; padding: 20px; color: var(--text-muted, #64748b); font-size: 0.9rem;">
+            Party Hub — Creato per serate tra amici 🎲
+        </footer>
 
-            <h3 id="questionText" style="margin-bottom: 20px; font-size: 1.2rem; text-align: center;"></h3>
-            <div id="optionsContainer" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;"></div>
-            
-            <button id="btnNextQuestion" class="primary-btn" style="display: none;" onclick="nextQuestionLocal()">Avanti ➡️</button>
-        </div>
-
-        <!-- Schermata Finale Risultati -->
-        <div id="resultsScreen" class="card" style="display: none; text-align: center;">
-            <h3>🏆 Classifica Finale</h3>
-            <div id="scoreboard" style="margin: 20px 0;"></div>
-            <button class="primary-btn" onclick="location.reload()">Torna al Menu</button>
-        </div>
     </div>
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
